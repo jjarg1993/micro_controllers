@@ -63,15 +63,23 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int trocken=410;
+int trocken=600;
+int feucht_genug=350;
 volatile int humidity;
 char buffer[50];
-
+/**
+ * @brief wrapper function to print integers
+ * @param to_print value to be printed
+ */
 void print_value(int to_print){
     snprintf(buffer,sizeof(buffer),"%d\r\n",to_print);
     HAL_UART_Transmit(&huart2,(uint8_t *) buffer ,strlen(buffer),100);
 }
 
+/**
+ * @brief computes an average of 8 values of measured humidity. It will delay for 10 ms between measurements
+ * @return the average
+ */
 int average_humidity(void){
     int average=0;
     for(int i=0;i<8;i++){
@@ -85,6 +93,10 @@ int average_humidity(void){
     return (average/8);
 }
 
+/**
+ * @brief checks if the value of average is smaller than the value for dry
+ * @return 1 if average is greater than dry and 0 if it is not
+ */
 int too_dry_average(void){
     if(average_humidity()>trocken){
         return 1;
@@ -93,17 +105,26 @@ int too_dry_average(void){
     }
 }
 
+/**
+ * @brief checks if the value of one measurement is smaller than the value for dry
+ * @return 1 if average is greater than dry and 0 if it is not
+ */
+
 int too_dry_once(void){
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1,200);
     humidity= HAL_ADC_GetValue(&hadc1);
     print_value(humidity);
-    if(humidity>trocken){
+    if(humidity<feucht_genug){
         return 1;
     }else{
         return 0;
     }
 }
+
+/**
+ * @brief motor will be activated for 1 second and will be stopped for 5 seconds to let the water spread out
+ */
 
 void water_plant(void){
     HAL_GPIO_WritePin(Motor_GPIO_Port, Motor_Pin,GPIO_PIN_SET);
@@ -111,6 +132,10 @@ void water_plant(void){
     HAL_GPIO_WritePin(Motor_GPIO_Port, Motor_Pin,GPIO_PIN_RESET);
     HAL_Delay(5000);
 }
+
+/**
+ * @brief if the average is over the dry value the system will water the plant until a humidity value is reached.
+ */
 
 void watering_system (void){
     if(too_dry_average()){
@@ -164,8 +189,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-      //watering_system();
-      print_value(average_humidity());
+      watering_system();
+      //print_value(average_humidity());
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
