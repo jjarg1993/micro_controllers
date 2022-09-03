@@ -1,0 +1,7 @@
+For this first version of the project I used:
+- Nucleo Board STM32L432KC
+- 4K Ohm Resistors
+- 1 2222 Transistor
+- 1 waterpump, 6mm ID, 3V
+- 1 moisture sensor capacitator
+
