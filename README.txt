@@ -5,4 +5,4 @@ a water planting system with a Nucleo Board STM32L432KC
 Planned are:
 a water planting systemw with a Raspberry Pi Zero
 a 'Firestick' adaptor to make non smart TV into a smart TV
-a camera surveilance system for my room
+a camera surveilance system to find out which dog dodos infront of my house
